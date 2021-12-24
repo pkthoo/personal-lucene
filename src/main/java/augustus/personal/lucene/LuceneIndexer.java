@@ -47,7 +47,11 @@ public class LuceneIndexer {
         private int fileContentLimit = 2097152; // 2MB
 
         private String[] indexAllowedExts = new String[]{
-                ".java"
+                ".java", ".xml", ".yml", ".properties"
+        };
+
+        private String[] excludeDirContains = new String[] {
+                "artifactory", ".idea", "apache-ignite-src"
         };
 
         private String indexAllowedRegex = null;
@@ -142,6 +146,14 @@ public class LuceneIndexer {
     }
 
     public void indexDir(File dir) {
+        if (config.excludeDirContains != null) {
+            for (String token : config.excludeDirContains) {
+                if (dir.toString().contains(token)) {
+                    log.debug("[SKIP] -- {}", dir);
+                    return;
+                }
+            }
+        }
         log.debug("[INDEX_ALL] -- {}", dir);
         final File[] files = dir.listFiles();
         if (files == null || files.length == 0) return;
@@ -293,6 +305,8 @@ public class LuceneIndexer {
         }
     }
 
+    private static int rows = 30;
+
     private static void runInConsole(LuceneIndexer luceneIndexer) throws IOException {
         final IndexSearcher searcher = luceneIndexer.searcher();
         System.out.println(">> START QUERYING HERE <<");
@@ -317,7 +331,13 @@ public class LuceneIndexer {
                     } else if (token.equalsIgnoreCase("-delete")) {
                         luceneIndexer.deleteAll();
                     } else if (token.equalsIgnoreCase("-quit")) {
-                        break;
+                        return;
+                    }
+                    else if (token.equalsIgnoreCase("-rows")) {
+                        if (i + 1 < tokensLength) {
+                            token = tokens[++i];
+                            rows = Integer.parseInt(token);
+                        }
                     }
                 }
 
@@ -325,8 +345,8 @@ public class LuceneIndexer {
             }
 
             try {
-                query = query.toLowerCase()+'*';
-                luceneIndexer.queryContent(searcher, query, 20);
+                //query = query.toLowerCase()+'*';
+                luceneIndexer.queryContent(searcher, query, rows);
             } catch (Exception e) {
                 System.out.println("ERROR | "+e.toString());
             }
@@ -339,6 +359,10 @@ public class LuceneIndexer {
         TopDocs hits = searcher.search(query, rows);
 
         ScoreDoc[] scoreDocs = hits.scoreDocs;
+        if (scoreDocs.length == 0) {
+            System.out.println("[NO RESULTS]");
+            return;
+        }
         for (int i = 0; i < scoreDocs.length; i++) {
             ScoreDoc scoreDoc = scoreDocs[i];
             Document d = searcher.doc(scoreDoc.doc);
