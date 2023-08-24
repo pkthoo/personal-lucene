@@ -1,0 +1,3 @@
+https://github.com/mcandre/cheatsheets/blob/master/lucene.md
+
+"javax.persistence" "@Version"

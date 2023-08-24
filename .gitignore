@@ -1,6 +1,6 @@
 /.idea
 /logs
-/lucene
+/lucene**
 /target
 
 **.iml
