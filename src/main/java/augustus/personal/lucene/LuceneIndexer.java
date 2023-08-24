@@ -45,6 +45,8 @@ public class LuceneIndexer {
     private Analyzer analyzer;
     private Directory indexDirectory;
     private IndexWriter indexWriter;
+    private String field = "content";
+    private int rows = 30;
 
     public void setConfig(Config config) {
         this.config = config;
@@ -131,8 +133,6 @@ public class LuceneIndexer {
         }
     }
 
-    private static int rows = 30;
-
     private static void runInConsole(LuceneIndexer luceneIndexer) throws IOException {
         final IndexSearcher searcher = luceneIndexer.searcher();
         System.out.println(">> START QUERYING HERE <<");
@@ -153,7 +153,15 @@ public class LuceneIndexer {
                     else if (token.equalsIgnoreCase("-rows")) {
                         if (i + 1 < tokensLength) {
                             token = tokens[++i];
-                            rows = Integer.parseInt(token);
+                            luceneIndexer.rows = Integer.parseInt(token);
+                            System.out.println("rows="+luceneIndexer.rows);
+                        }
+                    }
+                    else if (token.equalsIgnoreCase("-field")) {
+                        if (i + 1 < tokensLength) {
+                            token = tokens[++i];
+                            luceneIndexer.field = token;
+                            System.out.println("field="+luceneIndexer.field);
                         }
                     }
                 }
@@ -163,15 +171,15 @@ public class LuceneIndexer {
 
             try {
                 //query = query.toLowerCase()+'*';
-                luceneIndexer.queryContent(searcher, query, rows);
+                luceneIndexer.queryContent(searcher, query);
             } catch (Exception e) {
                 System.out.println("ERROR | "+e.toString());
             }
         }
     }
 
-    private void queryContent(IndexSearcher searcher, String s, int rows) throws Exception {
-        QueryParser qp = new QueryParser("content", analyzer);
+    private void queryContent(IndexSearcher searcher, String s) throws Exception {
+        QueryParser qp = new QueryParser(field, analyzer);
         Query query = qp.parse(s);
         TopDocs hits = searcher.search(query, rows);
 
