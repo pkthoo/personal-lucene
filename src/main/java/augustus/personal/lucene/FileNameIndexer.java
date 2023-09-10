@@ -9,7 +9,6 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -22,14 +21,8 @@ public class FileNameIndexer {
         log.info("START INDEXING NOW");
         FileNameIndexer indexer = new FileNameIndexer("lucene");
         try {
-            if (0 < args.length) {
-                File dir = new File(args[0]);
-                indexer.indexFiles(dir);
-            }
-            else {
-                Path p0 = Path.of("C:\\Users\\pk_th\\IdeaProjects");
-                indexer.indexFiles(p0.toFile());
-            }
+            File dir = new File(args[0]);
+            indexer.indexFiles(dir);
         } finally {
             indexer.close();
         }
