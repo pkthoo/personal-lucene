@@ -52,7 +52,7 @@ public record FileForIndex(File source, String name, String path, String ext, lo
         Document document = new Document();
         document.add(new StringField("name", name, Field.Store.YES));
         document.add(new StringField("path", path, Field.Store.YES));
-        document.add(new StringField("ext", ext, Field.Store.NO));
+        document.add(new StringField("ext", ext, Field.Store.YES));
         document.add(new LongPoint("lastModified", lastModified));
 
         String content = readContent(limit);
