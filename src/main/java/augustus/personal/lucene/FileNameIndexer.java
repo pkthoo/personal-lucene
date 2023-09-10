@@ -9,6 +9,7 @@ import org.apache.lucene.store.FSDirectory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -21,8 +22,14 @@ public class FileNameIndexer {
         log.info("START INDEXING NOW");
         FileNameIndexer indexer = new FileNameIndexer("lucene");
         try {
-            File dir = new File(args[0]);
-            indexer.indexFiles(dir);
+            if (0 < args.length) {
+                File dir = new File(args[0]);
+                indexer.indexFiles(dir);
+            }
+            else {
+                Path p0 = Path.of("C:\\Users\\pk_th\\IdeaProjects");
+                indexer.indexFiles(p0.toFile());
+            }
         } finally {
             indexer.close();
         }
@@ -38,7 +45,7 @@ public class FileNameIndexer {
     };
 
     String[] excludeDirContains = new String[] {
-            "artifactory", ".idea", "apache-ignite-src", "dbeaver", ".git"
+            "artifactory", ".idea", "apache-ignite-src", "dbeaver", ".git", "target"
     };
 
     String indexAllowedRegex = null;
